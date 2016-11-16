@@ -33,8 +33,8 @@ int main(int argc, char *argv[]) {
             float curr_p = gaussian_rand(0.0f, 1.0f);
 
             // リープフロッグ法で遷移させる
-			vec_t trail_t;
-			vec_t trail_p;
+            vec_t trail_t;
+            vec_t trail_p;
             float next_t = curr_t;
             float next_p = curr_p;
             for (int l = 0; l < n_leap; l++) {
