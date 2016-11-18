@@ -19,7 +19,7 @@ https://github.com/hiroyam/metropolis-hastings
 
 ##### 動作サンプル
 
-リープフロッグ法で遷移している様子をプロットしました。
+リープフロッグ法で位相空間を遷移している様子をプロットしました。
 
 ![](images/plot1.png)
 
