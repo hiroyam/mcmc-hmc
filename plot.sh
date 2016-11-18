@@ -56,6 +56,8 @@ set offsets 0.1, 0.1, 0.1, 0.1
 # plot exp(-(x-1)**2/2/0.01) / sqrt(2*pi*0.01) ls 10 t 'gamma', \
 #      "output" using 1:2 w p ls 11 pt 6 ps 1.0 lw 1 t ''
 
+set xlabel "mean"
+set ylabel "variance"
 plot "output" using 1:2 w p ls 12 pt 6 ps 0.2 lw 1 t ''
 
 # set xlabel "position"
