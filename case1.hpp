@@ -46,6 +46,7 @@ void run() {
         sv += std::pow(v - sm, 2.0f) / samples.size();
     }
 
+    // ずれた位置からスタートする
     vec_t curr_t {
         160.0f,
         30.0f
