@@ -14,13 +14,13 @@ float hamiltonian_gamma(float theta, float p) {
     return potential_gamma(theta) + p * p / 2;
 }
 
+// ハミルトニアンモンテカルロでガンマ分布に従う乱数を発生させる
 void run() {
     const float step   = 0.01f;
     const int   n_leap = 10;
     const int   n_loop = 1000000;
     const int   n_burn = n_loop / 10;
 
-    // ハミルトニアンモンテカルロで事後分布がガンマ分布である場合の乱数を得る
     vec_t vt;
     vec_t vp;
     int   accept = 0;
