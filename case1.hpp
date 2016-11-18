@@ -1,112 +1,93 @@
 namespace case1 {
-float potential(vec_t &t, vec_t &samples) {
-    if (t[1] <= 0) throw std::runtime_error("failed to calculate potential");
-    float sum_l2 = 0.0f;
-    for (auto v : samples) {
-        sum_l2 += std::pow(v - t[0], 2);
-    }
-    return (float)samples.size() * std::log(t[1]) / 2.0f + sum_l2 / t[1] / 2.0f;
+float potential_gamma(float theta) {
+    if (!theta) throw std::runtime_error("failed to calculate potential_gamma");
+    return 13.0f * theta - 10.0f * std::log(theta);
 }
 
-vec_t potential_delta(vec_t &t, vec_t &samples) {
-    if (t[1] <= 0) throw std::runtime_error("failed to calculate potential_delta");
-    float sum_l1 = 0.0f;
-    float sum_l2 = 0.0f;
-    for (auto v : samples) {
-        sum_l1 += v - t[0];
-        sum_l2 += std::pow(v - t[0], 2);
-    }
-    vec_t ret {
-        -sum_l1 / t[1],
-        (float)samples.size() / 2.0f / t[1] - sum_l2 / 2.0f / t[1] / t[1]
-    };
-    return ret;
+float potential_gamma_delta(float theta) {
+    if (!theta) throw std::runtime_error("failed to calculate potential_gamma_delta");
+    return 13.0f - (10.0f / theta);
 }
 
-float hamiltonian(vec_t &t, vec_t &p, vec_t &samples) {
-    return potential(t, samples) + (p[0] * p[0] + p[1] * p[1]) / 2.0f;
+float hamiltonian_gamma(float theta, float p) {
+    return potential_gamma(theta) + p * p / 2;
 }
 
-// ハミルトニアンモンテカルロでガウス分布のパラメタを推定する
+// ハミルトニアンモンテカルロでガンマ分布に従う乱数を発生させる
 void run() {
-    const int dim    = 2;
-    const int n_loop = 100000;
-    const int n_burn = 90000;
+    const float step   = 0.01f;
+    const int   n_leap = 10;
+    const int   n_loop = 1000000;
+    const int   n_burn = n_loop / 10;
 
-    // 平均170、分散49の正規分布から1000個の標本を作る
-    vec_t samples;
-    for (int i = 0; i < 1000; i++) {
-        samples.push_back(gaussian_rand(170.0f, std::sqrt(49.0f)));
-    }
-
-    // 標本平均と標本分散を求める
-    float sm = std::accumulate(samples.begin(), samples.end(), 0.0) / samples.size();
-    float sv = 0.0f;
-    for (auto v : samples) {
-        sv += std::pow(v - sm, 2.0f) / samples.size();
-    }
-
-    // ずれた位置からスタートする
-    vec_t curr_t {
-        160.0f,
-        30.0f
-    };
-    std::vector<vec_t> vt;
+    vec_t vt;
+    vec_t vp;
+    int   accept = 0;
+    float curr_t = 1.0f;
     for (int i = 0; i < n_loop; i++) {
-        const float step   = 0.01f;
-        const int   n_leap = 100;
-
         // 独立な標準正規乱数を発生させる
-        vec_t curr_p {
-            gaussian_rand(0.0f, 1.0f),
-            gaussian_rand(0.0f, 1.0f)
-        };
+        float curr_p = gaussian_rand(0.0f, 1.0f);
 
         // リープフロッグ法で遷移させる
-        vec_t half_p(dim);
-        vec_t next_t = curr_t;
-        vec_t next_p = curr_p;
+        vec_t trail_t;
+        vec_t trail_p;
+        float next_t = curr_t;
+        float next_p = curr_p;
         for (int l = 0; l < n_leap; l++) {
-            for (int i = 0; i < dim; i++) {
-                half_p[i] = next_p[i] - step * potential_delta(next_t, samples)[i] / 2;
-            }
-
-            for (int i = 0; i < dim; i++) {
-                next_t[i] += step * half_p[i];
-            }
-
-            for (int i = 0; i < dim; i++) {
-                next_p[i] = half_p[i] - step * potential_delta(next_t, samples)[i] / 2;
-            }
+            float halfway = next_p  - step * potential_gamma_delta(next_t) / 2;
+            next_t = next_t  + step * halfway;
+            next_p = halfway - step * potential_gamma_delta(next_t) / 2;
+            trail_t.push_back(next_t);
+            trail_p.push_back(next_p);
         }
 
-        float curr_h = hamiltonian(curr_t, curr_p, samples);
-        float next_h = hamiltonian(next_t, next_p, samples);
+        // 位相空間での軌跡をプロットする
+        // std::ofstream ofs("output");
+        // for (int l = 0; l < n_leap; l++) {
+        //     ofs << format_str("%f %f %f", trail_t[l], trail_p[l], hamiltonian_gamma(trail_t[l], trail_p[l])) << std::endl;
+        // }
+        // exit(0);
+
+        float curr_h = hamiltonian_gamma(curr_t, curr_p);
+        float next_h = hamiltonian_gamma(next_t, next_p);
         float r      = std::exp(curr_h - next_h);
+
         if (std::min(1.0f, r) > uniform_rand(0.0f, 1.0f)) {
+            accept++;
             curr_t = next_t;
+            curr_p = next_p;
         }
+        vp.push_back(curr_p);
         vt.push_back(curr_t);
     }
+
+    // 受容率を調べる
+    std::cout << format_str("persec: %.3f%%", 100.0f * accept / n_loop) << std::endl;
 
     // バーンイン期間を破棄する
     std::rotate(vt.begin(), vt.begin() + n_burn, vt.end());
     vt.resize(vt.size() - n_burn);
 
     // EAP推定値を求める
-    float mean = 0.0f;
-    float var  = 0.0f;
-    for (auto v : vt) {
-        mean += v[0] / vt.size();
-        var  += v[1] / vt.size();
-    }
-    std::cout << format_str("mean: %f", mean) << std::endl;
-    std::cout << format_str("var: %f", var)   << std::endl;
+    std::cout << format_str("mean: %f", std::accumulate(vt.begin(), vt.end(), 0.0f) / vt.size()) << std::endl;
 
-    // プロットする
-    std::ofstream ofs("output");
+    // ストリップ毎に頻度を計算する
+    const float strip = 0.1f;
+    const int   range = 30;
+    vec_t       frequency(range);
     for (auto v : vt) {
-        ofs << format_str("%f %f", v[0], v[1]) << std::endl;
+        int pos = (int)(v / strip);
+        if (pos >= 0 && pos < range) {
+            frequency[pos] += v;
+        }
+    }
+
+    // 相対度数でプロットする
+    std::ofstream ofs("output");
+    for (size_t i = 0; i < frequency.size(); i++) {
+        float x = i * strip;
+        float y = frequency[i] / (strip * std::accumulate(frequency.begin(), frequency.end(), 0.0f));
+        ofs << format_str("%f %f", x, y) << std::endl;
     }
 }
 }
