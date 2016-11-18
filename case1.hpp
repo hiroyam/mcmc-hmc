@@ -1,4 +1,4 @@
-namespace gauss_distribution {
+namespace case1 {
 
 float potential(vec_t &t, vec_t &samples) {
     if (t[1] <= 0) throw std::runtime_error("failed to calculate potential");
@@ -110,4 +110,4 @@ void run() {
 	}
 }
 
-} // gauss
+}

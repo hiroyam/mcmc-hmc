@@ -1,4 +1,4 @@
-namespace gamma_distribution {
+namespace case2 {
 
 float potential_gamma(float theta) {
     if (!theta) throw std::runtime_error("failed to calculate potential_gamma");
@@ -92,4 +92,4 @@ void run() {
     }
 }
 
-} // gamma
+}

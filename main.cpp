@@ -2,13 +2,13 @@
 
 using namespace cc;
 
-#include "./gauss_distribution.hpp"
-#include "./gamma_distribution.hpp"
+#include "./case1.hpp"
+#include "./case2.hpp"
 
 int main(int argc, char *argv[]) {
     try {
-        // gamma_distribution::run();
-        gauss_distribution::run();
+        // case1::run();
+        case2::run();
     } catch (const std::exception &e) {
         std::cerr << colorant('y', format_str("error: %s", e.what())) << std::endl;
     }
