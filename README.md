@@ -19,7 +19,7 @@ https://github.com/hiroyam/metropolis-hastings
 
 ##### 動作サンプル
 
-リープフロッグで遷移している様子をプロットしました。
+リープフロッグ法で遷移している様子をプロットしました。
 
 ![](images/plot1.png)
 
