@@ -51,8 +51,12 @@ set offsets 0.1, 0.1, 0.1, 0.1
 #      1 ls 12 t 'uniform', \
 #      "output" using 1:2 w p ls 11 pt 6 ps 1.0 lw 1 t ''
 
-plot (x ** 10) * (13 ** 11) / exp(x * 13) / gamma(11) ls 10 t 'gamma', \
-     "output" using 1:2 w p ls 11 pt 6 ps 1.0 lw 1 t ''
+# plot 0.3 * (x ** 10) * (5 ** 11) / exp(x * 5) / gamma(11) + 0.7 * (x ** 34) * (25 ** 35) / exp(x * 25) / gamma(35)  ls 10 t 'gamma', \
+
+# plot exp(-(x-1)**2/2/0.01) / sqrt(2*pi*0.01) ls 10 t 'gamma', \
+#      "output" using 1:2 w p ls 11 pt 6 ps 1.0 lw 1 t ''
+
+plot "output" using 1:2 w p ls 12 pt 6 ps 0.2 lw 1 t ''
 
 # set xlabel "position"
 # set ylabel "momentum"
