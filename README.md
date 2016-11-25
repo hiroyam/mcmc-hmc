@@ -1,8 +1,8 @@
-# hmc
+# mcmc-hmc
 
 Hamiltonian Monte Carlo method
 
-[![Build Status](https://travis-ci.org/hiroyam/hmc.svg?branch=master)](https://travis-ci.org/hiroyam/hmc)
+[![Build Status](https://travis-ci.org/hiroyam/mcmc-hmc.svg?branch=master)](https://travis-ci.org/hiroyam/mcmc-hmc)
 
 ---
 
